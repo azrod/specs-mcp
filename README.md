@@ -96,4 +96,5 @@ Template `spec://{id}` : `id` est le nom du fichier sans `.md` (insensible à la
 npm run build   # tsc -> dist/
 npm test        # node --test via tsx
 npm run lint    # tsc --noEmit (src + tests)
+npm run test:parity   # parité avec l'implémentation d'origine (ORIGIN_DIR), ignorée si elle est absente
 ```
