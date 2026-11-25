@@ -1,0 +1,33 @@
+{
+  "name": "specs-mcp",
+  "version": "0.1.0",
+  "description": "MCP server exposing spec_* tools to create, read, search, validate and list markdown specifications",
+  "type": "module",
+  "main": "dist/index.js",
+  "bin": {
+    "specs-mcp": "dist/index.js"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "tsc",
+    "test": "node --import tsx --test \"tests/**/*.test.ts\"",
+    "test:parity": "node --import tsx --test \"tests/parity/*.test.ts\"",
+    "lint": "tsc --noEmit && tsc --noEmit -p tsconfig.test.json",
+    "start": "node dist/index.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.32.2",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@types/node": "^22.20.7",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2"
+  }
+}
