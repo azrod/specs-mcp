@@ -9,10 +9,11 @@ Serveur MCP TypeScript (Node >= 22, ESM, `@modelcontextprotocol/sdk`, transport 
 | `src/index.ts` | Bin stdio (`#!/usr/bin/env node`). Lit argv/env, crée le serveur, se connecte. Erreurs de démarrage sur stderr (stdout porte le protocole). |
 | `src/config.ts` | `resolveConfig(argv, env)` → `{ projectRoot: string \| null, paths: Readonly<{ specs }> }`. Racine : `--root` > `SPECS_ROOT` > null. Specs : `--specs-dir` > `SPECS_DIR` > `docs/specs`. |
 | `src/server.ts` | `createServer(config)` → `{ server, getContext() }`. Racine paresseuse : config, sinon premier root `file://` du client (`roots/list`), sinon `process.cwd()`. |
-| `src/tools.ts` | `registerSpecTools(server, getContext)` : enregistre tools, resources et prompts. |
+| `src/spec-get.ts` | `specGet(projectRoot, paths, id, cursor?)` : port de `specGet` (résolution par id, lecture, `paginateArtifact` avec `metadata: { file, frontmatter }`). |
+| `src/tools.ts` | `registerSpecTools(server, getContext)` : enregistre les 9 tools `spec_*` (descriptions et arguments du registry d'origine, `outputSchema` souple), la resource `spec://{id}` et les prompts `spec_format` / `write_spec`. |
 | `src/frontmatter.ts` | `parseFrontmatter(content)` : port exact de l'original. |
-| `src/result.ts` | `toolText` / `toolError` → `CallToolResult` (`isError: true` pour l'erreur). |
-| `tests/*.test.ts` | Tests `node:test` via `tsx`, fixtures dans des dossiers temporaires (`fs.mkdtemp`). |
+| `src/result.ts` | `toolText` / `toolError` → `CallToolResult` (`isError: true` pour l'erreur) ; `jsonResult(text)` : texte JSON de l'original + `structuredContent` (erreur si l'objet porte `error`). |
+| `tests/*.test.ts` | Tests `node:test` via `tsx`, fixtures dans des dossiers temporaires (`fs.mkdtemp`). `tests/mcp.test.ts` : intégration bout en bout (`InMemoryTransport` + `Client`), dont le snapshot des descriptions du registry d'origine. |
 
 ## Commandes
 
