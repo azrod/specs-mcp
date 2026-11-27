@@ -324,6 +324,16 @@ npm run lint    # tsc --noEmit (src + tests)
 npm run test:parity   # parity checks (ORIGIN_DIR), skipped if required files are unavailable
 ```
 
+### Releasing
+
+One-time setup: publish `@azrod/specs-mcp` manually with `npm publish --access public` first, since a trusted publisher can only be configured for an existing package. On npmjs.com, add a GitHub Actions trusted publisher with owner `azrod`, repository `specs-mcp`, and workflow filename `release.yml`; allow direct publishing with `npm publish`. No npm token is needed by the workflow.
+
+For subsequent releases:
+
+1. Run `npm version patch` (or `npm version minor` / `npm version major`).
+2. Push the version commit and its tag.
+3. Publish a GitHub Release for that `vX.Y.Z` tag. The release workflow checks that the tag matches `package.json`, builds, lints, tests, and publishes to npm using OIDC with automatic provenance. GitHub pre-releases publish under `next`; other releases use the default dist-tag.
+
 ## From source
 
 In a local checkout:
