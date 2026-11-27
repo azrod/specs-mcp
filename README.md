@@ -24,14 +24,14 @@ In `opencode.json`:
   "mcp": {
     "specs": {
       "type": "local",
-      "command": ["node", "/chemin/vers/specs-mcp/dist/index.js"],
+      "command": ["node", "/path/to/specs-mcp/dist/index.js"],
       "enabled": true
     }
   }
 }
 ```
 
-With options: `"command": ["node", "/chemin/vers/specs-mcp/dist/index.js", "--specs-dir", "docs/specs"]`.
+With options: `"command": ["node", "/path/to/specs-mcp/dist/index.js", "--specs-dir", "docs/specs"]`.
 
 ### Claude Desktop
 
@@ -42,7 +42,7 @@ In `claude_desktop_config.json`:
   "mcpServers": {
     "specs": {
       "command": "node",
-      "args": ["/chemin/vers/specs-mcp/dist/index.js", "--root", "/chemin/vers/projet"]
+      "args": ["/path/to/specs-mcp/dist/index.js", "--root", "/path/to/project"]
     }
   }
 }
