@@ -27,7 +27,7 @@ async function firstFileRoot(server: McpServer): Promise<string | null> {
 }
 
 export function createServer(config: SpecsConfig): CreatedServer {
-  const server = new McpServer({ name: pkg.name, version: pkg.version }, { capabilities: { tools: {} } });
+  const server = new McpServer({ name: pkg.name.replace(/^@[^/]+\//, ""), version: pkg.version }, { capabilities: { tools: {} } });
 
   let discoveredRoot: Promise<string> | undefined;
   const resolveRoot = (): Promise<string> => {

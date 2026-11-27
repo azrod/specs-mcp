@@ -1,7 +1,18 @@
 {
-  "name": "specs-mcp",
+  "name": "@azrod/specs-mcp",
   "version": "0.1.0",
   "description": "MCP server exposing spec_* tools to create, read, search, validate and list markdown specifications",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/azrod/specs-mcp.git"
+  },
+  "homepage": "https://github.com/azrod/specs-mcp#readme",
+  "bugs": {
+    "url": "https://github.com/azrod/specs-mcp/issues"
+  },
   "type": "module",
   "main": "dist/index.js",
   "bin": {
