@@ -1,23 +1,23 @@
 # specs-mcp
 
-Serveur MCP (stdio) qui expose les tools `spec_*` pour créer, lire, rechercher, valider et lister des specs markdown dans un projet. Réimplémentation TypeScript des tools `spec_*` du plugin opencode `opencode-team-lead`.
+An MCP server (stdio) that exposes `spec_*` tools to create, read, search, validate, and list Markdown specifications in a project.
 
 ## Installation
 
-Prérequis : Node.js >= 22.
+Requires Node.js >= 22.
 
 ```sh
 npm install
 npm run build
 ```
 
-Le binaire est `dist/index.js` (`specs-mcp` une fois le paquet installé).
+The executable is `dist/index.js` (`specs-mcp` once the package is installed).
 
-## Configuration du client
+## Client configuration
 
 ### opencode
 
-Dans `opencode.json` :
+In `opencode.json`:
 
 ```json
 {
@@ -31,11 +31,11 @@ Dans `opencode.json` :
 }
 ```
 
-Avec options : `"command": ["node", "/chemin/vers/specs-mcp/dist/index.js", "--specs-dir", "docs/specs"]`.
+With options: `"command": ["node", "/chemin/vers/specs-mcp/dist/index.js", "--specs-dir", "docs/specs"]`.
 
 ### Claude Desktop
 
-Dans `claude_desktop_config.json` :
+In `claude_desktop_config.json`:
 
 ```json
 {
@@ -48,53 +48,53 @@ Dans `claude_desktop_config.json` :
 }
 ```
 
-Claude Desktop n'annonce pas de root exploitable : passe `--root` (ou `SPECS_ROOT`), sinon le serveur travaille dans son répertoire courant.
+Claude Desktop does not provide a usable root: pass `--root` (or `SPECS_ROOT`), otherwise the server uses its current working directory.
 
 ## Options
 
-| Option | Variable d'environnement | Défaut | Rôle |
+| Option | Environment variable | Default | Description |
 |--------|--------------------------|--------|------|
-| `--root <dir>` | `SPECS_ROOT` | aucun | Racine du projet. |
-| `--specs-dir <dir>` | `SPECS_DIR` | `docs/specs` | Dossier des specs, relatif à la racine. Une valeur vide est une erreur (`paths.specs must be a non-empty string`). |
+| `--root <dir>` | `SPECS_ROOT` | none | Project root. |
+| `--specs-dir <dir>` | `SPECS_DIR` | `docs/specs` | Specifications directory, relative to the root. An empty value is an error (`paths.specs must be a non-empty string`). |
 
-L'option de la ligne de commande l'emporte sur la variable d'environnement.
+Command-line options take precedence over environment variables.
 
-Sans `--root` ni `SPECS_ROOT`, la racine est le premier root `file://` annoncé par le client MCP (`roots/list`), sinon `process.cwd()`. Elle est résolue au premier appel d'un tool.
+Without `--root` or `SPECS_ROOT`, the root is the first `file://` root provided by the MCP client (`roots/list`), falling back to `process.cwd()`. It is resolved on the first tool call.
 
 ## Tools
 
-Neuf tools, mêmes noms, arguments et réponses que le plugin d'origine. Les arguments sont tous des chaînes ; ceux marqués « optionnel » peuvent être omis.
+Nine tools are available. All arguments are strings; arguments marked with `?` are optional.
 
-| Tool | Arguments | Rôle |
+| Tool | Arguments | Description |
 |------|-----------|------|
-| `spec_get` | `id`, `cursor`? | Lit une page bornée (16 384 octets) d'une spec, avec `file` et `frontmatter` du document entier. Continuer avec `pagination.next_cursor` tant que `pagination.has_more` est vrai. |
-| `spec_search` | `query`, `id`?, `type`?, `status`? | Cherche jusqu'à cinq passages (jetons lettres/chiffres, OR) avec citation fichier/lignes et `source_hash`. |
-| `spec_read_section` | `id`, `section_id`, `source_hash`, `cursor`? | Développe une section citée par `spec_search`, par pages ; `STALE_SOURCE` / `STALE_CURSOR` si la spec a changé. |
-| `spec_create` | `title`, `type`?, `content`? | Crée une spec (`type` par défaut : `technical`, statut `draft`). Refuse d'écraser. |
-| `spec_update` | `id`, `old_string`, `new_string` | Remplace une occurrence unique. |
-| `spec_validate` | `id` | Validation structurelle. `valid` / `issues` portent les erreurs bloquantes, `warnings` les écarts au format (type/statut inconnus, sections requises absentes ou dans le désordre). |
-| `spec_list` | `type`?, `status`? | Liste les specs avec leurs métadonnées ; les filtres comparent exactement, sans tenir compte de la casse. |
-| `spec_delete` | `id` | Supprime une spec. |
-| `spec_format` | aucun | Renvoie le format canonique d'une spec, en texte brut. |
+| `spec_get` | `id`, `cursor`? | Reads a bounded page (16,384 bytes) of a specification, with `file` and `frontmatter` for the whole document. Continue with `pagination.next_cursor` while `pagination.has_more` is true. |
+| `spec_search` | `query`, `id`?, `type`?, `status`? | Searches for up to five passages (letter/number tokens, OR matching) with file/line citations and `source_hash`. |
+| `spec_read_section` | `id`, `section_id`, `source_hash`, `cursor`? | Expands a section cited by `spec_search`, in pages; returns `STALE_SOURCE` / `STALE_CURSOR` if the specification has changed. |
+| `spec_create` | `title`, `type`?, `content`? | Creates a specification (`type` defaults to `technical`, status is `draft`). Refuses to overwrite an existing file. |
+| `spec_update` | `id`, `old_string`, `new_string` | Replaces a single, unique occurrence. |
+| `spec_validate` | `id` | Structural validation. `valid` / `issues` report blocking errors; `warnings` reports format deviations (unknown type/status, missing or out-of-order required sections). |
+| `spec_list` | `type`?, `status`? | Lists specifications with their metadata; filters use exact, case-insensitive matching. |
+| `spec_delete` | `id` | Deletes a specification. |
+| `spec_format` | none | Returns the canonical specification format as plain text. |
 
-Réponses : le texte est le JSON de l'original (sauf `spec_format`, texte brut) et le même objet est repris dans `structuredContent`, décrit par un `outputSchema`. Un échec renvoie `{ "error": "…" }` (avec `code` pour la pagination et la recherche) et `isError: true`.
+Responses: the text contains JSON (except for `spec_format`, which returns plain text), and the same object is included in `structuredContent`, described by an `outputSchema`. A failure returns `{ "error": "…" }` (with `code` for pagination and search) and `isError: true`.
 
 ## Resources
 
-Template `spec://{id}` : `id` est le nom du fichier sans `.md` (insensible à la casse). La liste (`resources/list`) donne une entrée par spec du dossier (`name` = id, `title` = titre du frontmatter, `mimeType` = `text/markdown`). La lecture renvoie le fichier complet, sans pagination. Une spec inconnue répond par l'erreur MCP `-32002`. Le serveur notifie `resources/list_changed` après un `spec_create` ou `spec_delete` réussi.
+Template `spec://{id}`: `id` is the filename without `.md` (case-insensitive). The list (`resources/list`) contains one entry per specification in the directory (`name` = id, `title` = frontmatter title, `mimeType` = `text/markdown`). Reading a resource returns the full file, without pagination. An unknown specification returns MCP error `-32002`. The server sends a `resources/list_changed` notification after a successful `spec_create` or `spec_delete`.
 
 ## Prompts
 
-| Prompt | Arguments | Contenu |
+| Prompt | Arguments | Content |
 |--------|-----------|---------|
-| `spec_format` | aucun | Le format canonique d'une spec. |
-| `write_spec` | `title`, `type`? | Embarque le format, demande de rédiger la spec puis d'appeler `spec_create` et `spec_validate`. |
+| `spec_format` | none | The canonical specification format. |
+| `write_spec` | `title`, `type`? | Includes the format and asks the client to write the specification, then call `spec_create` and `spec_validate`. |
 
-## Développement
+## Development
 
 ```sh
 npm run build   # tsc -> dist/
 npm test        # node --test via tsx
 npm run lint    # tsc --noEmit (src + tests)
-npm run test:parity   # parité avec l'implémentation d'origine (ORIGIN_DIR), ignorée si elle est absente
+npm run test:parity   # parity checks (ORIGIN_DIR), skipped if required files are unavailable
 ```
