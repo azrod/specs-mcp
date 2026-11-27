@@ -1,0 +1,53 @@
+name: Release
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          registry-url: https://registry.npmjs.org
+          package-manager-cache: false
+      - name: Ensure npm supports trusted publishing (>= 11.5.1)
+        shell: bash
+        run: |
+          IFS=. read -r major minor patch <<< "$(npm --version)"
+          if (( major < 11 || (major == 11 && (minor < 5 || (minor == 5 && patch < 1))) )); then
+            npm install -g npm@latest
+          fi
+          npm --version
+      - run: npm ci
+      - run: npm run build
+      - run: npm run lint
+      - run: npm test
+      - name: Verify release tag matches package version
+        shell: bash
+        env:
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: |
+          expected_tag="v$(node -p 'JSON.parse(require("node:fs").readFileSync("package.json", "utf8")).version')"
+          if [[ ! "$RELEASE_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ || "$RELEASE_TAG" != "$expected_tag" ]]; then
+            echo "::error::Release tag '$RELEASE_TAG' must have format vX.Y.Z and match package version '$expected_tag'."
+            exit 1
+          fi
+      - name: Publish to npm using OIDC
+        shell: bash
+        env:
+          RELEASE_PRERELEASE: ${{ github.event.release.prerelease }}
+        run: |
+          # npm generates provenance automatically when publishing with OIDC.
+          if [[ "$RELEASE_PRERELEASE" == "true" ]]; then
+            npm publish --access public --tag next
+          else
+            npm publish --access public
+          fi
